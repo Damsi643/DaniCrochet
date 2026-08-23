@@ -1,0 +1,41 @@
+.registro-main {
+  padding: 2rem 1rem 3rem;
+}
+
+.formulario-registro {
+  border-top: 4px solid var(--color-principal);
+}
+
+.formulario-registro input:focus {
+  border-color: var(--color-principal);
+  box-shadow: 0 0 0 3px rgba(201, 123, 132, 0.18);
+  outline: none;
+}
+
+.formulario-registro input:invalid:not(:placeholder-shown) {
+  border-color: #c94c5a;
+}
+
+.formulario-registro input:valid:not(:placeholder-shown) {
+  border-color: #5a9b72;
+}
+
+.formulario-registro p {
+  margin: 1rem 0 0;
+  text-align: center;
+}
+
+.formulario-registro a {
+  color: var(--color-principal);
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .registro-main {
+    padding: 1.5rem 0.75rem 2rem;
+  }
+
+  .formulario-registro {
+    padding: 1.5rem;
+  }
+}
