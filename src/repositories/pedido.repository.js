@@ -56,6 +56,10 @@ const pedidoRepository = {
     return cliente;
   },
 
+  buscarClientePorUsuarioId(usuarioId, t) {
+    return Cliente.findOne({ where: { usuarioId }, transaction: t });
+  },
+
   crear(datos, t) {
     return Pedido.create(datos, { transaction: t });
   },

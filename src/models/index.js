@@ -8,6 +8,8 @@ const { Pago, ESTADOS_PAGO } = require('./Pago');
 
 Cliente.hasMany(Pedido, { foreignKey: 'clienteId', as: 'pedidos' });
 Pedido.belongsTo(Cliente, { foreignKey: 'clienteId', as: 'cliente' });
+Usuario.hasOne(Cliente, { foreignKey: 'usuarioId', as: 'cliente' });
+Cliente.belongsTo(Usuario, { foreignKey: 'usuarioId', as: 'usuario' });
 
 Pedido.hasMany(PedidoDetalle, {
   foreignKey: 'pedidoId',

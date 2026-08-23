@@ -17,6 +17,21 @@ const authController = {
     }
   },
 
+  async registrar(req, res) {
+    try {
+      const { nombre, correo, password } = req.body || {};
+      const usuario = await authService.registrar(nombre, correo, password);
+      req.session.usuario = usuario;
+      res.status(201).json({ mensaje: 'Cuenta creada', usuario });
+    } catch (err) {
+      if (err instanceof CredencialesInvalidasError) {
+        return res.status(400).json({ error: err.message });
+      }
+      console.error('Error en registro:', err.message);
+      res.status(500).json({ error: 'Error al crear la cuenta' });
+    }
+  },
+
   logout(req, res) {
     req.session.destroy(() => {
       res.clearCookie('connect.sid');

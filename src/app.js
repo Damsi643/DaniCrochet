@@ -33,6 +33,7 @@ const pages = {
   '/producto': 'producto.html',
   '/carrito': 'carrito.html',
   '/login': 'login.html',
+  '/registro': 'registro.html',
 };
 
 for (const [route, file] of Object.entries(pages)) {

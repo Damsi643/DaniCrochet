@@ -81,8 +81,10 @@ const pedidoService = {
     return pedido;
   },
 
-  async crearPedido(datos) {
-    const datosCliente = validarDatosCliente(datos && datos.cliente);
+  async crearPedido(datos, usuario) {
+    if (!usuario || usuario.rol !== 'cliente' || !usuario.clienteId) {
+      throw new ValidacionError('La cuenta no tiene un cliente asociado');
+    }
     const items = normalizarItems(datos && datos.items);
 
     let pedidoId;
@@ -115,10 +117,13 @@ const pedidoService = {
         total += subtotal;
       }
 
-      const cliente = await pedidoRepository.buscarOCrearCliente(
-        datosCliente,
+      const cliente = await pedidoRepository.buscarClientePorUsuarioId(
+        usuario.id,
         t
       );
+      if (!cliente) {
+        throw new ValidacionError('La cuenta no tiene un cliente asociado');
+      }
 
       const pedido = await pedidoRepository.crear(
         { clienteId: cliente.id, total, estado: 'Pendiente' },

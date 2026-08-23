@@ -28,6 +28,12 @@ const Usuario = sequelize.define(
       type: DataTypes.STRING(255),
       allowNull: false,
     },
+    rol: {
+      type: DataTypes.STRING(20),
+      allowNull: false,
+      defaultValue: 'cliente',
+      validate: { isIn: [['admin', 'cliente']] },
+    },
   },
   {
     tableName: 'usuarios',

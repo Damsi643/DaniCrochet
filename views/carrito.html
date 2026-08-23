@@ -393,6 +393,8 @@
 
             if (!form) return;
 
+            comprobarSesionCheckout(form);
+
 
             form.addEventListener('submit', async (evento) => {
 
@@ -415,14 +417,6 @@
                         await fetchJSON('/api/pedidos', {
                             method: 'POST',
                             body: JSON.stringify({
-                                cliente: {
-                                    nombre:
-                                        document.getElementById('cliente-nombre').value.trim(),
-                                    correo:
-                                        document.getElementById('cliente-correo').value.trim(),
-                                    telefono:
-                                        document.getElementById('cliente-telefono').value.trim(),
-                                },
                                 items,
                             }),
                         });
@@ -440,6 +434,25 @@
 
             });
 
+        }
+
+        async function comprobarSesionCheckout(form) {
+            try {
+                const respuesta = await fetchJSON('/api/auth/session');
+                if (respuesta.usuario.rol !== 'cliente') throw new Error('cliente');
+                document.getElementById('cliente-nombre').value = respuesta.usuario.nombre;
+                document.getElementById('cliente-correo').value = respuesta.usuario.correo;
+                document.getElementById('cliente-nombre').readOnly = true;
+                document.getElementById('cliente-correo').readOnly = true;
+            } catch (_error) {
+                const checkout = form.closest('.checkout');
+                checkout.innerHTML = `
+                    <h3>Inicia sesión para realizar tu pedido</h3>
+                    <p>Tu carrito se conservará mientras creas una cuenta o ingresas.</p>
+                    <a class="btn-finalizar" href="/registro?return=/carrito">Registrarse</a>
+                    <a class="btn-continuar" href="/login?return=/carrito">Iniciar sesión</a>
+                `;
+            }
         }
 
 

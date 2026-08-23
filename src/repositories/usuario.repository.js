@@ -4,6 +4,7 @@ const usuarioRepository = {
   findByCorreo(correo) {
     return Usuario.findOne({
       where: { correo: String(correo).toLowerCase().trim() },
+      include: [{ association: 'cliente' }],
     });
   },
 
@@ -11,8 +12,8 @@ const usuarioRepository = {
     return Usuario.count();
   },
 
-  create(datos) {
-    return Usuario.create(datos);
+  create(datos, opciones) {
+    return Usuario.create(datos, opciones);
   },
 };
 

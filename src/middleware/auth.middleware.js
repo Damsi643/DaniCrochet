@@ -1,5 +1,5 @@
 function requiereAdminApi(req, res, next) {
-  if (req.session && req.session.usuario) {
+  if (req.session && req.session.usuario && req.session.usuario.rol === 'admin') {
     return next();
   }
   return res
@@ -8,10 +8,17 @@ function requiereAdminApi(req, res, next) {
 }
 
 function requiereAdminPagina(req, res, next) {
-  if (req.session && req.session.usuario) {
+  if (req.session && req.session.usuario && req.session.usuario.rol === 'admin') {
     return next();
   }
   return res.redirect('/login');
 }
 
-module.exports = { requiereAdminApi, requiereAdminPagina };
+function requiereClienteApi(req, res, next) {
+  if (req.session && req.session.usuario && req.session.usuario.rol === 'cliente') {
+    return next();
+  }
+  return res.status(401).json({ error: 'Debes iniciar sesión para realizar un pedido.' });
+}
+
+module.exports = { requiereAdminApi, requiereAdminPagina, requiereClienteApi };

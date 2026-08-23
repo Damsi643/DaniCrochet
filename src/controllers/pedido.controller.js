@@ -22,7 +22,7 @@ function responderError(res, err, mensajeGenerico) {
 const pedidoController = {
   async crear(req, res) {
     try {
-      const pedido = await pedidoService.crearPedido(req.body);
+      const pedido = await pedidoService.crearPedido(req.body, req.session.usuario);
       res.status(201).json({
         mensaje: 'Pedido registrado correctamente',
         pedido,

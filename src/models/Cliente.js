@@ -29,6 +29,11 @@ const Cliente = sequelize.define(
       allowNull: true,
       defaultValue: null,
     },
+    usuarioId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      unique: true,
+    },
   },
   {
     tableName: 'clientes',
