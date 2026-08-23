@@ -1,0 +1,128 @@
+.tabla-carrito {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-tarjeta);
+  border-radius: var(--radio);
+  overflow: hidden;
+  box-shadow: var(--sombra);
+}
+
+.tabla-carrito th,
+.tabla-carrito td {
+  padding: 0.9rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #f0e4de;
+}
+
+.tabla-carrito th {
+  background-color: #fbe4e0;
+  color: var(--color-primario-oscuro);
+}
+
+.tabla-carrito img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  vertical-align: middle;
+  margin-right: 0.6rem;
+}
+
+.tabla-carrito input.cant {
+  width: 60px;
+  padding: 0.35rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.tabla-carrito .eliminar {
+  background: none;
+  border: none;
+  color: #c0392b;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.resumen-carrito {
+  margin-top: 1.4rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.resumen-box {
+  background-color: var(--color-tarjeta);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 1.4rem;
+  min-width: 280px;
+}
+
+.resumen-box .fila {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.resumen-box .total {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-primario-oscuro);
+  border-top: 1px solid #f0e4de;
+  padding-top: 0.8rem;
+  margin-top: 0.4rem;
+}
+
+.resumen-box .btn {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.checkout {
+  margin-top: 1.6rem;
+  background-color: var(--color-tarjeta);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 1.6rem;
+  max-width: 460px;
+}
+
+.checkout h3 {
+  font-family: var(--fuente-titulo);
+  font-weight: 400;
+  color: #c982b0;
+  margin-bottom: 1rem;
+}
+
+.checkout label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.checkout input {
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid #e5b9cc;
+  border-radius: 10px;
+  margin-bottom: 0.9rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--color-texto);
+}
+
+.pedido-confirmado {
+  text-align: center;
+  background-color: var(--color-tarjeta);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 3rem 2rem;
+}
+
+@media (max-width: 720px) {
+  .tabla-carrito th,
+  .tabla-carrito td {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+}

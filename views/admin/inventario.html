@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - Dani Crochet Admin</title>
+    <link rel="icon" href="/img/icon-192.png">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+    <nav class="admin-nav">
+        <div class="container">
+            <a class="logo" href="/admin">Dani Crochet <span>· Admin</span></a>
+            <ul class="nav-links nav-admin">
+                <li><a href="/admin">Inicio</a></li>
+                <li><a href="/admin/productos">Productos</a></li>
+                <li><a href="/admin/pedidos">Pedidos</a></li>
+                <li><a href="/admin/clientes">Clientes</a></li>
+                <li><a href="/admin/inventario" class="activo">Inventario</a></li>
+                <li><a href="/admin/pagos">Pagos</a></li>
+                <li><button type="button" class="btn-salir" id="btn-salir">Cerrar sesión</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="admin-main">
+
+        <h1 class="titulo">Inventario</h1>
+
+        <section class="panel">
+            <div class="tabla-contenedora">
+                <table class="tabla-admin">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Stock</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-inventario">
+                        <tr><td colspan="3" class="mensaje-vacio-mini">Cargando inventario...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>Dani Crochet &copy; 2026 - Panel administrativo</footer>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const cuerpo = document.getElementById('tabla-inventario');
+            let inventario;
+
+            try {
+                inventario = await fetchJSON('/api/inventario');
+            } catch (err) {
+                cuerpo.innerHTML = `<tr><td colspan="3" class="mensaje-vacio-mini">${err.message}</td></tr>`;
+                return;
+            }
+
+            if (inventario.length === 0) {
+                cuerpo.innerHTML =
+                    '<tr><td colspan="3" class="mensaje-vacio-mini">No hay productos en el inventario.</td></tr>';
+                return;
+            }
+
+            cuerpo.innerHTML = inventario
+                .map(
+                    (i) => `
+                    <tr>
+                        <td><strong>${i.nombre}</strong></td>
+                        <td>${i.stock} unidades</td>
+                        <td>${badgeEstado(i.estado)}</td>
+                    </tr>`
+                )
+                .join('');
+        });
+    </script>
+
+</body>
+</html>

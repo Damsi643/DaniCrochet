@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Catálogo - Dani Crochet</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#D291BC">
+    <link rel="icon" href="/img/icon-192.png">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/catalogo.css">
+</head>
+
+<body>
+
+    <!-- ENCABEZADO -->
+    <header class="encabezado-fondo">
+
+        <div class="logo-container">
+            <a href="/">
+                <img src="/img/icon-192.png"
+                     alt="Dani Crochet"
+                     class="logo"
+                     onerror="this.src='/img/placeholder.svg'">
+            </a>
+        </div>
+
+        <div class="carrito-container">
+
+            <a href="/carrito"
+               class="carrito-link">
+
+                <i class="bi bi-cart3"></i>
+
+                <span id="badge-carrito"
+                      data-badge-carrito
+                      class="badge-carrito"
+                      style="display: none;">
+                    0
+                </span>
+
+                <div id="notificacion"
+                     class="notificacion">
+                    +1
+                </div>
+
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- TÍTULO -->
+
+    <h1 class="titulo">
+        Catálogo de Productos
+    </h1>
+
+
+    <!-- BUSCADOR -->
+
+    <div class="barra-busqueda">
+
+        <input
+            type="text"
+            id="buscador"
+            placeholder="Buscar producto..."
+        >
+
+        <button type="button" id="btn-buscar">
+            <i class="bi bi-search"></i>
+            Buscar
+        </button>
+
+    </div>
+
+
+    <!-- PRODUCTOS -->
+
+    <main>
+
+        <div
+            class="contenedor-productos"
+            id="lista-productos">
+
+            <p class="cargando">
+                Cargando productos...
+            </p>
+
+        </div>
+
+        <div
+            id="sin-resultados"
+            class="sin-resultados"
+            style="display: none;">
+
+            <i class="bi bi-search"></i>
+
+            <p>
+                No se encontraron productos que coincidan con tu búsqueda.
+            </p>
+
+        </div>
+
+    </main>
+
+
+    <!-- RESUMEN -->
+
+    <section class="resumen">
+
+        <h2>
+            Resumen de Productos
+        </h2>
+
+        <p>
+            <strong>Total de productos:</strong>
+
+            <span id="total-productos">
+                0
+            </span>
+        </p>
+
+    </section>
+
+
+    <footer>
+        Dani Crochet © 2026 - Productos artesanales
+    </footer>
+
+
+    <script src="/js/app.js"></script>
+
+    <script>
+
+        let productos = [];
+
+        let cantidadCarrito = 0;
+
+
+        document.addEventListener('DOMContentLoaded', async () => {
+
+            await cargarProductos();
+
+            configurarBusqueda();
+
+        });
+
+
+        async function cargarProductos() {
+
+            const contenedor =
+                document.getElementById('lista-productos');
+
+            try {
+
+                productos =
+                    await fetchJSON('/api/productos');
+
+                document.getElementById('total-productos')
+                    .textContent = productos.length;
+
+                mostrarProductos(productos);
+
+            } catch (error) {
+
+                console.error(error);
+
+                contenedor.innerHTML = `
+                    <p class="mensaje-error">
+                        No se pudieron cargar los productos.
+                    </p>
+                `;
+            }
+        }
+
+
+        function mostrarProductos(lista) {
+
+            const contenedor =
+                document.getElementById('lista-productos');
+
+            const sinResultados =
+                document.getElementById('sin-resultados');
+
+
+            if (lista.length === 0) {
+
+                contenedor.innerHTML = '';
+
+                sinResultados.style.display = 'block';
+
+                return;
+            }
+
+
+            sinResultados.style.display = 'none';
+
+
+            contenedor.innerHTML = lista.map(producto => `
+
+                <article class="producto">
+
+                    <a href="/producto?id=${producto.id}">
+
+                        <img
+                            src="${producto.imagen}"
+                            alt="${producto.nombre}"
+                            onerror="this.src='/img/placeholder.svg'"
+                        >
+
+                        <h2>
+                            ${producto.nombre}
+                        </h2>
+
+                        <p>
+                            ${producto.descripcion || ''}
+                        </p>
+
+                        <span class="precio">
+                            $ ${formatearPrecio(producto.precio)}
+                        </span>
+
+                    </a>
+
+
+                    <div class="producto-footer">
+
+                        <span class="stock">
+
+                            ${
+                                producto.stock > 0
+                                ? `${producto.stock} disponibles`
+                                : 'Agotado'
+                            }
+
+                        </span>
+
+
+                        <button
+                            type="button"
+                            class="btn-carrito"
+                            data-id="${producto.id}"
+                            ${producto.stock === 0 ? 'disabled' : ''}
+                            title="Agregar al carrito">
+
+                            <i class="bi bi-cart-plus"></i>
+
+                        </button>
+
+                    </div>
+
+                </article>
+
+            `).join('');
+
+
+            agregarEventosCarrito();
+
+        }
+
+
+        function agregarEventosCarrito() {
+
+            document
+                .querySelectorAll('.btn-carrito')
+                .forEach(boton => {
+
+                    boton.addEventListener('click', () => {
+
+                        const idProducto =
+                            boton.dataset.id;
+
+                        const producto =
+                            productos.find(
+                                p => p.id === Number(idProducto)
+                            );
+
+
+                        if (!producto) return;
+
+
+                        agregarAlCarrito(producto, 1);
+
+                        actualizarBadgeCarrito();
+
+                        mostrarNotificacion();
+
+                        boton.innerHTML =
+                            '<i class="bi bi-check-lg"></i>';
+
+                        setTimeout(() => {
+
+                            boton.innerHTML =
+                                '<i class="bi bi-cart-plus"></i>';
+
+                        }, 1200);
+
+                    });
+
+                });
+
+        }
+
+
+        function mostrarNotificacion() {
+
+            const notificacion =
+                document.getElementById('notificacion');
+
+            notificacion.style.display =
+                'block';
+
+            notificacion.style.opacity =
+                '1';
+
+
+            setTimeout(() => {
+
+                notificacion.style.opacity =
+                    '0';
+
+                setTimeout(() => {
+
+                    notificacion.style.display =
+                        'none';
+
+                }, 500);
+
+            }, 1000);
+
+        }
+
+
+        function configurarBusqueda() {
+
+            const buscador =
+                document.getElementById('buscador');
+
+            const boton =
+                document.getElementById('btn-buscar');
+
+
+            function buscar() {
+
+                const texto =
+                    buscador.value
+                        .toLowerCase()
+                        .trim();
+
+
+                const resultados =
+                    productos.filter(producto =>
+
+                        producto.nombre
+                            .toLowerCase()
+                            .includes(texto)
+
+                        ||
+
+                        (producto.descripcion || '')
+                            .toLowerCase()
+                            .includes(texto)
+
+                    );
+
+
+                mostrarProductos(resultados);
+
+            }
+
+
+            boton.addEventListener(
+                'click',
+                buscar
+            );
+
+
+            buscador.addEventListener(
+                'input',
+                buscar
+            );
+
+        }
+
+    </script>
+
+</body>
+
+</html>

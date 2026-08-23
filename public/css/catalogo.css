@@ -1,0 +1,50 @@
+/* BUSCADOR */
+.barra-busqueda { display: flex; justify-content: center; gap: 0.75rem; max-width: 520px; margin: 0 auto 2.5rem; }
+.barra-busqueda input {
+  flex: 1; height: 48px; background: #fff;
+  border: 2px solid #d89bc1; border-radius: 10px;
+  padding: 0 16px; outline: none;
+  font-family: inherit; font-size: 1rem; color: var(--color-texto);
+}
+.barra-busqueda input:focus { border-color: var(--color-primario-oscuro); }
+.barra-busqueda button {
+  height: 48px; padding: 0 22px; border: none; border-radius: 10px;
+  background: var(--color-primario); color: #fff; font-family: inherit;
+  font-size: 1rem; font-weight: 700; cursor: pointer; transition: 0.2s;
+}
+.barra-busqueda button:hover { background: var(--color-primario-oscuro); }
+
+/* PRODUCTOS */
+.contenedor-productos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+
+.producto {
+  background: var(--color-tarjeta); border-radius: 24px;
+  padding: 1.3rem; text-align: center; transition: 0.25s;
+}
+.producto:hover { transform: translateY(-6px); box-shadow: var(--sombra); }
+.producto > a { display: block; text-decoration: none; color: inherit; }
+.producto img {
+  width: 100%; aspect-ratio: 1.35 / 1;
+  object-fit: cover; border-radius: 16px; background: #e9b6c4;
+}
+.producto h2 { font-size: 1.45rem; line-height: 1.15; margin: 1.1rem 0 0.5rem; color: var(--color-texto); }
+.producto p { min-height: 4.5rem; font-size: 1.05rem; line-height: 1.35; }
+.producto .precio { display: block; margin-top: 0.8rem; color: var(--color-precio); font-size: 1.5rem; font-weight: 700; }
+.producto-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+.stock { font-size: 0.95rem; font-weight: 600; color: var(--color-texto-suave); }
+.btn-carrito {
+  width: 44px; height: 44px; border: none; border-radius: 50%;
+  background: var(--color-primario); color: #fff; font-size: 1.25rem;
+  cursor: pointer; transition: 0.2s;
+}
+.btn-carrito:hover:not(:disabled) { background: var(--color-primario-oscuro); transform: scale(1.1); }
+.btn-carrito:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.sin-resultados { text-align: center; padding: 3rem 1rem; font-size: 1.2rem; color: var(--color-texto-suave); }
+.sin-resultados i { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+
+/* RESUMEN */
+.resumen { text-align: center; background: var(--color-tarjeta); border-radius: var(--radio); padding: 1.2rem; margin-top: 2.5rem; box-shadow: var(--sombra); }
+
+@media (max-width: 1100px) { .contenedor-productos { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 700px) { .contenedor-productos { grid-template-columns: 1fr; } }

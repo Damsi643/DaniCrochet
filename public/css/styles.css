@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Pacifico&display=swap');
+
+:root {
+  --color-primario: #e6a3b6;
+  --color-primario-oscuro: #d88da3;
+  --color-fondo: #fff5f8;
+  --color-tarjeta: #f7d7de;
+  --color-texto: #6f3152;
+  --color-texto-suave: #8f5070;
+  --color-precio: #d31572;
+  --radio: 22px;
+  --sombra: 0 12px 28px rgba(112, 45, 79, 0.15);
+  --fuente-titulo: 'Pacifico', cursive;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Baloo 2', sans-serif;
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  line-height: 1.55;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main { flex: 1; width: min(1100px, 100% - 2rem); margin: 0 auto; padding: 2rem 0; }
+
+/* ===== NAVEGACIÓN ===== */
+.navbar { background: var(--color-tarjeta); box-shadow: var(--sombra); position: sticky; top: 0; z-index: 10; }
+.navbar .container { width: min(1100px, 100% - 2rem); margin: auto; display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 0; }
+.logo { font-family: var(--fuente-titulo); font-size: 1.3rem; color: #c982b0; text-decoration: none; }
+.nav-links { display: flex; gap: 1.2rem; list-style: none; align-items: center; }
+.nav-links a { text-decoration: none; color: var(--color-texto); font-weight: 600; transition: color 0.2s; }
+.nav-links a:hover, .nav-links a.activo { color: #c982b0; }
+.badge-carrito { background: var(--color-precio); color: #fff; border-radius: 999px; font-size: 0.75rem; padding: 0.1rem 0.5rem; margin-left: 0.25rem; }
+
+/* ===== ENCABEZADO COMPARTIDO (catálogo / carrito) ===== */
+.encabezado-fondo { display: flex; justify-content: space-between; align-items: center; padding: 1rem clamp(1rem, 4vw, 3rem); }
+.encabezado-fondo .logo { width: 64px; height: 64px; border-radius: 16px; object-fit: cover; }
+.carrito-link { position: relative; font-size: 2rem; color: var(--color-texto); text-decoration: none; transition: transform 0.2s; }
+.carrito-link:hover { transform: scale(1.1); }
+.notificacion { position: absolute; top: -6px; right: -10px; background: var(--color-precio); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 999px; opacity: 0; pointer-events: none; transition: opacity 0.4s; }
+
+.titulo { text-align: center; font-family: var(--fuente-titulo); font-weight: 400; font-size: clamp(2rem, 5vw, 3.2rem); color: #c982b0; margin-bottom: 1.5rem; }
+.navegacion { display: flex; justify-content: center; gap: 1.4rem; flex-wrap: wrap; margin-bottom: 2rem; }
+.navegacion a { color: var(--color-texto); text-decoration: none; font-weight: 700; }
+.navegacion a:hover, .navegacion .nav-link-active { color: #c982b0; }
+
+/* ===== BOTONES ===== */
+.btn {
+  display: inline-block; background: var(--color-primario); color: #fff;
+  border: none; border-radius: 999px; padding: 0.75rem 1.8rem;
+  font-family: inherit; font-size: 1.05rem; font-weight: 700;
+  cursor: pointer; text-decoration: none; transition: 0.2s;
+}
+.btn:hover { background: var(--color-primario-oscuro); transform: translateY(-3px); }
+.btn:active { transform: scale(0.98); }
+.btn.secundario { background: transparent; color: var(--color-primario-oscuro); border: 2px solid var(--color-primario); }
+.btn.secundario:hover { background: var(--color-primario); color: #fff; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ===== MENSAJES ===== */
+h2.seccion { font-family: var(--fuente-titulo); font-weight: 400; font-size: 1.7rem; color: #c982b0; margin-bottom: 1.2rem; }
+.mensaje-vacio, .mensaje-error, .cargando { text-align: center; padding: 3rem 1rem; color: var(--color-texto-suave); }
+.alerta { padding: 0.8rem 1rem; border-radius: 10px; margin-bottom: 1rem; display: none; }
+.alerta.error { background: #fdecea; color: #c0392b; display: block; }
+.alerta.ok { background: #e8f5e9; color: #2e7d32; display: block; }
+
+footer { background: var(--color-tarjeta); text-align: center; padding: 1.2rem; color: var(--color-texto-suave); margin-top: 2rem; }
+
+@media (max-width: 720px) {
+  .nav-links { gap: 0.8rem; font-size: 0.9rem; }
+}

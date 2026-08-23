@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - Dani Crochet Admin</title>
+    <link rel="icon" href="/img/icon-192.png">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+    <nav class="admin-nav">
+        <div class="container">
+            <a class="logo" href="/admin">Dani Crochet <span>· Admin</span></a>
+            <ul class="nav-links nav-admin">
+                <li><a href="/admin">Inicio</a></li>
+                <li><a href="/admin/productos">Productos</a></li>
+                <li><a href="/admin/pedidos">Pedidos</a></li>
+                <li><a href="/admin/clientes" class="activo">Clientes</a></li>
+                <li><a href="/admin/inventario">Inventario</a></li>
+                <li><a href="/admin/pagos">Pagos</a></li>
+                <li><button type="button" class="btn-salir" id="btn-salir">Cerrar sesión</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="admin-main">
+
+        <h1 class="titulo">Clientes</h1>
+
+        <section class="panel">
+            <div class="tabla-contenedora">
+                <table class="tabla-admin">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Teléfono</th>
+                            <th>Pedidos realizados</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-clientes">
+                        <tr><td colspan="4" class="mensaje-vacio-mini">Cargando clientes...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>Dani Crochet &copy; 2026 - Panel administrativo</footer>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const cuerpo = document.getElementById('tabla-clientes');
+            let clientes;
+
+            try {
+                clientes = await fetchJSON('/api/clientes');
+            } catch (err) {
+                cuerpo.innerHTML = `<tr><td colspan="4" class="mensaje-vacio-mini">${err.message}</td></tr>`;
+                return;
+            }
+
+            if (clientes.length === 0) {
+                cuerpo.innerHTML =
+                    '<tr><td colspan="4" class="mensaje-vacio-mini">Aún no hay clientes registrados.</td></tr>';
+                return;
+            }
+
+            cuerpo.innerHTML = clientes
+                .map(
+                    (c) => `
+                    <tr>
+                        <td><strong>${c.nombre}</strong></td>
+                        <td>${c.correo}</td>
+                        <td>${c.telefono || '-'}</td>
+                        <td>${c.totalPedidos}</td>
+                    </tr>`
+                )
+                .join('');
+        });
+    </script>
+
+</body>
+</html>

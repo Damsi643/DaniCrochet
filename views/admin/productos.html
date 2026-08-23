@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos - Dani Crochet Admin</title>
+    <link rel="icon" href="/img/icon-192.png">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+    <nav class="admin-nav">
+        <div class="container">
+            <a class="logo" href="/admin">Dani Crochet <span>· Admin</span></a>
+            <ul class="nav-links nav-admin">
+                <li><a href="/admin">Inicio</a></li>
+                <li><a href="/admin/productos" class="activo">Productos</a></li>
+                <li><a href="/admin/pedidos">Pedidos</a></li>
+                <li><a href="/admin/clientes">Clientes</a></li>
+                <li><a href="/admin/inventario">Inventario</a></li>
+                <li><a href="/admin/pagos">Pagos</a></li>
+                <li><button type="button" class="btn-salir" id="btn-salir">Cerrar sesión</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="admin-main">
+
+        <div class="cabecera-seccion">
+            <h1 class="titulo">Productos</h1>
+            <button type="button" class="btn" id="btn-nuevo">+ Nuevo producto</button>
+        </div>
+
+        <section class="panel">
+            <div class="tabla-contenedora">
+                <table class="tabla-admin">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-productos">
+                        <tr><td colspan="7" class="mensaje-vacio-mini">Cargando productos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL CREAR / EDITAR -->
+
+    <div class="modal-fondo" id="modal-producto" style="display:none">
+        <div class="modal">
+            <button type="button" class="modal-cerrar" data-cerrar-modal="modal-producto">×</button>
+            <h2 id="titulo-modal">Nuevo producto</h2>
+
+            <div class="alerta error" id="alerta-form"></div>
+
+            <form id="form-producto">
+                <input type="hidden" id="producto-id">
+
+                <div class="campo">
+                    <label for="nombre">Nombre *</label>
+                    <input type="text" id="nombre" required maxlength="120">
+                </div>
+
+                <div class="campo">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" rows="3"></textarea>
+                </div>
+
+                <div class="campo">
+                    <label for="precio">Precio (COP) *</label>
+                    <input type="number" id="precio" required min="1" step="1">
+                </div>
+
+                <div class="campo">
+                    <label for="stock">Stock</label>
+                    <input type="number" id="stock" min="0" step="1" value="0">
+                </div>
+
+                <div class="campo">
+                    <label for="imagen">Imagen</label>
+                    <input type="file" id="imagen" accept="image/*">
+                </div>
+
+                <button type="submit" class="btn" style="width:100%">Guardar producto</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>Dani Crochet &copy; 2026 - Panel administrativo</footer>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/admin.js"></script>
+    <script>
+        let productos = [];
+
+        document.addEventListener('DOMContentLoaded', cargarProductos);
+
+        async function cargarProductos() {
+            const cuerpo = document.getElementById('tabla-productos');
+            try {
+                productos = await fetchJSON('/api/admin/productos');
+            } catch (err) {
+                cuerpo.innerHTML = `<tr><td colspan="7" class="mensaje-vacio-mini">${err.message}</td></tr>`;
+                return;
+            }
+
+            if (productos.length === 0) {
+                cuerpo.innerHTML =
+                    '<tr><td colspan="7" class="mensaje-vacio-mini">No hay productos registrados todavía.</td></tr>';
+                return;
+            }
+
+            cuerpo.innerHTML = productos
+                .map(
+                    (p) => `
+                    <tr>
+                        <td><img src="${p.imagen}" alt="${p.nombre}" class="miniatura" onerror="this.src='/img/placeholder.svg'"></td>
+                        <td><strong>${p.nombre}</strong></td>
+                        <td>${(p.descripcion || '').length > 70 ? p.descripcion.slice(0, 70) + '…' : p.descripcion || ''}</td>
+                        <td>${formatearPrecio(p.precio)}</td>
+                        <td>${p.stock}</td>
+                        <td>${p.activo
+                            ? '<span class="badge badge-verde">Activo</span>'
+                            : '<span class="badge badge-gris">Inactivo</span>'}</td>
+                        <td>
+                            <div class="acciones-celda">
+                                <button type="button" class="btn-mini btn-editar" data-editar="${p.id}">Editar</button>
+                                <button type="button" class="btn-mini btn-peligro" data-eliminar="${p.id}">Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>`
+                )
+                .join('');
+        }
+
+        document.getElementById('btn-nuevo').addEventListener('click', () => abrirFormulario());
+
+        function abrirFormulario(producto) {
+            const form = document.getElementById('form-producto');
+            form.reset();
+            document.getElementById('alerta-form').className = 'alerta';
+            document.getElementById('producto-id').value = producto ? producto.id : '';
+            document.getElementById('titulo-modal').textContent = producto ? 'Editar producto' : 'Nuevo producto';
+
+            if (producto) {
+                document.getElementById('nombre').value = producto.nombre;
+                document.getElementById('descripcion').value = producto.descripcion || '';
+                document.getElementById('precio').value = producto.precio;
+                document.getElementById('stock').value = producto.stock;
+            }
+
+            abrirModal('modal-producto');
+        }
+
+        document.getElementById('form-producto').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const id = document.getElementById('producto-id').value;
+            const datos = new FormData();
+            datos.append('nombre', document.getElementById('nombre').value.trim());
+            datos.append('descripcion', document.getElementById('descripcion').value.trim());
+            datos.append('precio', document.getElementById('precio').value);
+            datos.append('stock', document.getElementById('stock').value || 0);
+
+            const imagen = document.getElementById('imagen').files[0];
+            if (imagen) datos.append('imagen', imagen);
+
+            try {
+                if (id) {
+                    await fetchJSON(`/api/productos/${id}`, {
+                        method: 'PUT',
+                        body: datos,
+                    });
+                } else {
+                    await fetchJSON('/api/productos', {
+                        method: 'POST',
+                        body: datos,
+                    });
+                }
+                cerrarModal('modal-producto');
+                cargarProductos();
+            } catch (err) {
+                const alerta = document.getElementById('alerta-form');
+                alerta.className = 'alerta error';
+                alerta.textContent = err.message;
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            const editar = e.target.closest('[data-editar]');
+            if (editar) {
+                const producto = productos.find((p) => p.id === Number(editar.dataset.editar));
+                if (producto) abrirFormulario(producto);
+            }
+
+            const eliminar = e.target.closest('[data-eliminar]');
+            if (eliminar) {
+                confirmarEliminacion(Number(eliminar.dataset.eliminar));
+            }
+        });
+
+        async function confirmarEliminacion(id) {
+            const producto = productos.find((p) => p.id === id);
+            if (!producto) return;
+
+            if (!confirm(`¿Seguro que deseas eliminar "${producto.nombre}"?`)) return;
+
+            try {
+                const respuesta = await fetchJSON(`/api/productos/${id}`, { method: 'DELETE' });
+                alert(respuesta.mensaje);
+                cargarProductos();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagos - Dani Crochet Admin</title>
+    <link rel="icon" href="/img/icon-192.png">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+    <nav class="admin-nav">
+        <div class="container">
+            <a class="logo" href="/admin">Dani Crochet <span>· Admin</span></a>
+            <ul class="nav-links nav-admin">
+                <li><a href="/admin">Inicio</a></li>
+                <li><a href="/admin/productos">Productos</a></li>
+                <li><a href="/admin/pedidos">Pedidos</a></li>
+                <li><a href="/admin/clientes">Clientes</a></li>
+                <li><a href="/admin/inventario">Inventario</a></li>
+                <li><a href="/admin/pagos" class="activo">Pagos</a></li>
+                <li><button type="button" class="btn-salir" id="btn-salir">Cerrar sesión</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="admin-main">
+
+        <h1 class="titulo">Pagos</h1>
+
+        <section class="panel">
+            <div class="tabla-contenedora">
+                <table class="tabla-admin">
+                    <thead>
+                        <tr>
+                            <th>Pedido</th>
+                            <th>Cliente</th>
+                            <th>Monto</th>
+                            <th>Método</th>
+                            <th>Fecha</th>
+                            <th>Estado del pago</th>
+                            <th>Cambiar a</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-pagos">
+                        <tr><td colspan="7" class="mensaje-vacio-mini">Cargando pagos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>Dani Crochet &copy; 2026 - Panel administrativo</footer>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/admin.js"></script>
+    <script>
+        const ESTADOS_PAGO = ['Pendiente', 'Confirmado', 'Rechazado'];
+
+        document.addEventListener('DOMContentLoaded', cargarPagos);
+
+        async function cargarPagos() {
+            const cuerpo = document.getElementById('tabla-pagos');
+            let pagos;
+
+            try {
+                pagos = await fetchJSON('/api/pagos');
+            } catch (err) {
+                cuerpo.innerHTML = `<tr><td colspan="7" class="mensaje-vacio-mini">${err.message}</td></tr>`;
+                return;
+            }
+
+            if (pagos.length === 0) {
+                cuerpo.innerHTML =
+                    '<tr><td colspan="7" class="mensaje-vacio-mini">Aún no hay pagos registrados.</td></tr>';
+                return;
+            }
+
+            cuerpo.innerHTML = pagos
+                .map(
+                    (pago) => `
+                    <tr>
+                        <td>#${pago.pedido ? pago.pedido.id : '-'}</td>
+                        <td>${pago.pedido && pago.pedido.cliente ? pago.pedido.cliente.nombre : '-'}</td>
+                        <td>${formatearPrecio(pago.monto)}</td>
+                        <td>${pago.metodo}</td>
+                        <td>${formatearFecha(pago.createdAt)}</td>
+                        <td>${badgeEstado(pago.estado)}</td>
+                        <td>
+                            <select class="estado-select" data-cambiar-pago="${pago.id}">
+                                ${ESTADOS_PAGO.map(
+                                    (e) =>
+                                        `<option value="${e}" ${e === pago.estado ? 'selected' : ''}>${e}</option>`
+                                ).join('')}
+                            </select>
+                        </td>
+                    </tr>`
+                )
+                .join('');
+        }
+
+        document.addEventListener('change', async (e) => {
+            const select = e.target.closest('[data-cambiar-pago]');
+            if (!select) return;
+
+            const id = Number(select.dataset.cambiarPago);
+            try {
+                await fetchJSON(`/api/pagos/${id}/estado`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ estado: select.value }),
+                });
+                alert(`Pago #${id} actualizado a "${select.value}".`);
+                cargarPagos();
+            } catch (err) {
+                alert(err.message);
+                cargarPagos();
+            }
+        });
+    </script>
+
+</body>
+</html>

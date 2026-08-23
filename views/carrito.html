@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Carrito - Dani Crochet</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#D291BC">
+    <link rel="icon" href="/img/icon-192.png">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/carrito.css">
+</head>
+
+<body>
+
+    <!-- ENCABEZADO -->
+    <header class="encabezado-fondo">
+
+        <div class="logo-container">
+            <a href="/">
+                <img src="/img/icon-192.png"
+                     alt="Dani Crochet"
+                     class="logo"
+                     onerror="this.src='/img/placeholder.svg'">
+            </a>
+        </div>
+
+        <div class="carrito-container">
+
+            <a href="/carrito"
+               class="carrito-link">
+
+                <i class="bi bi-cart3"></i>
+
+                <span data-badge-carrito
+                      class="badge-carrito"
+                      style="display: none;">
+                    0
+                </span>
+
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- TÍTULO -->
+
+    <h1 class="titulo">
+        🛒 Tu Carrito
+    </h1>
+
+
+    <!-- NAVEGACIÓN -->
+
+    <nav class="navegacion">
+
+        <a href="/">Inicio</a>
+        <a href="/catalogo">Catálogo</a>
+        <a href="/carrito" class="nav-link-active">Carrito</a>
+        <a href="/login">Ingresar</a>
+
+    </nav>
+
+
+    <!-- CONTENIDO -->
+
+    <main class="carrito"
+          id="contenido-carrito">
+
+        <p class="cargando">
+            Cargando carrito...
+        </p>
+
+    </main>
+
+
+    <footer>
+        Dani Crochet © 2026 - Productos artesanales
+    </footer>
+
+
+    <script src="/js/app.js"></script>
+
+    <script>
+
+        const COSTO_ENVIO = 10000;
+
+        let productosData = [];
+
+
+        document.addEventListener('DOMContentLoaded', async () => {
+
+            await cargarProductos();
+
+            renderCarrito();
+
+            configurarEventosGlobales();
+
+        });
+
+
+        async function cargarProductos() {
+
+            try {
+
+                productosData =
+                    await fetchJSON('/api/productos');
+
+            } catch (error) {
+
+                console.error(error);
+
+                productosData = [];
+
+            }
+        }
+
+
+        function descripcionDe(id) {
+
+            const producto =
+                productosData.find(p => p.id === Number(id));
+
+            const texto =
+                (producto && producto.descripcion) || '';
+
+            return texto.length > 50
+                ? texto.slice(0, 50) + '...'
+                : texto;
+
+        }
+
+
+        function renderCarrito() {
+
+            const contenedor =
+                document.getElementById('contenido-carrito');
+
+            const items =
+                obtenerCarrito();
+
+
+            if (items.length === 0) {
+
+                contenedor.innerHTML = `
+
+                    <div class="carrito-vacio">
+
+                        <i>👜</i>
+
+                        <h3>Tu carrito está vacío</h3>
+
+                        <p>
+                            Explora el catálogo y agrega productos increíbles.
+                        </p>
+
+                        <a href="/catalogo" class="btn-continuar">
+                            Descubrir productos
+                        </a>
+
+                    </div>
+
+                `;
+
+                return;
+            }
+
+
+            const filas =
+                items.map(item => `
+
+                    <tr>
+
+                        <td>
+
+                            <div class="producto-info">
+
+                                <img
+                                    src="${item.imagen}"
+                                    alt="${item.nombre}"
+                                    class="imagen-producto"
+                                    onerror="this.src='/img/placeholder.svg'"
+                                >
+
+                                <div class="producto-details">
+
+                                    <span class="producto-nombre">
+                                        ${item.nombre}
+                                    </span>
+
+                                    <span class="producto-desc">
+                                        ${descripcionDe(item.id)}
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                        <td class="precio-cell">
+                            <span class="precio-actual">
+                                ${formatearPrecio(item.precio)}
+                            </span>
+                        </td>
+
+                        <td class="cantidad-cell">
+
+                            <div class="cantidad-controls">
+
+                                <button
+                                    type="button"
+                                    class="btn-cantidad"
+                                    data-decrementar="${item.id}">
+                                    -
+                                </button>
+
+                                <input
+                                    type="number"
+                                    id="cantidad-${item.id}"
+                                    value="${item.cantidad}"
+                                    min="1"
+                                    class="cantidad-input"
+                                    data-input-cantidad="${item.id}"
+                                >
+
+                                <button
+                                    type="button"
+                                    class="btn-cantidad"
+                                    data-incrementar="${item.id}">
+                                    +
+                                </button>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                class="btn-actualizar"
+                                data-actualizar="${item.id}">
+                                Actualizar
+                            </button>
+
+                        </td>
+
+                        <td class="subtotal-cell">
+                            ${formatearPrecio(item.precio * item.cantidad)}
+                        </td>
+
+                        <td class="acciones-cell">
+
+                            <a
+                               href="#"
+                               class="btn-accion btn-eliminar"
+                               data-eliminar="${item.id}">
+                                🗑 Eliminar
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                `).join('');
+
+
+            contenedor.innerHTML = `
+
+                <table class="tabla-carrito">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Producto</th>
+                            <th>Precio Unitario</th>
+                            <th>Cantidad</th>
+                            <th>Subtotal</th>
+                            <th>Acciones</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>${filas}</tbody>
+
+                </table>
+
+
+                <div class="resumen-compra">
+
+                    <h3 class="texto-derecha total-text">
+                        Total a pagar:
+
+                        <span class="total-precio">
+                            ${formatearPrecio(totalCarrito())}
+                        </span>
+                    </h3>
+
+                    <p class="texto-derecha envio-text">
+                        + Envío: $10.000 COP
+                    </p>
+
+                    <p class="texto-derecha total-final-text">
+                        Total final:
+
+                        <span>
+                            ${formatearPrecio(totalCarrito() + COSTO_ENVIO)}
+                        </span>
+                    </p>
+
+                </div>
+
+
+                <div class="acciones">
+
+                    <a href="/catalogo" class="btn-continuar">
+                        ← Seguir comprando
+                    </a>
+
+                </div>
+
+
+                <section class="checkout">
+
+                    <h3>
+                        Finalizar pedido 🎀
+                    </h3>
+
+                    <div
+                        class="alerta"
+                        id="alerta-checkout">
+                    </div>
+
+                    <form id="form-checkout">
+
+                        <label for="cliente-nombre">
+                            Nombre completo *
+                        </label>
+                        <input
+                            type="text"
+                            id="cliente-nombre"
+                            required
+                        >
+
+                        <label for="cliente-correo">
+                            Correo electrónico *
+                        </label>
+                        <input
+                            type="email"
+                            id="cliente-correo"
+                            required
+                        >
+
+                        <label for="cliente-telefono">
+                            Teléfono
+                        </label>
+                        <input
+                            type="tel"
+                            id="cliente-telefono"
+                        >
+
+                        <button
+                            type="submit"
+                            class="btn-finalizar">
+                            🎀 Realizar pedido ·
+                            Total final:
+                            ${formatearPrecio(totalCarrito() + COSTO_ENVIO)}
+                        </button>
+
+                    </form>
+
+                </section>
+
+            `;
+
+            configurarCheckout();
+
+        }
+
+
+        function configurarCheckout() {
+
+            const form =
+                document.getElementById('form-checkout');
+
+            if (!form) return;
+
+
+            form.addEventListener('submit', async (evento) => {
+
+                evento.preventDefault();
+
+                const alerta =
+                    document.getElementById('alerta-checkout');
+
+                alerta.className = 'alerta';
+
+                const items =
+                    obtenerCarrito().map(item => ({
+                        productoId: item.id,
+                        cantidad: item.cantidad,
+                    }));
+
+                try {
+
+                    const respuesta =
+                        await fetchJSON('/api/pedidos', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                cliente: {
+                                    nombre:
+                                        document.getElementById('cliente-nombre').value.trim(),
+                                    correo:
+                                        document.getElementById('cliente-correo').value.trim(),
+                                    telefono:
+                                        document.getElementById('cliente-telefono').value.trim(),
+                                },
+                                items,
+                            }),
+                        });
+
+                    vaciarCarrito();
+
+                    mostrarConfirmacion(respuesta.pedido);
+
+                } catch (error) {
+
+                    alerta.className = 'alerta error';
+                    alerta.textContent = error.message;
+
+                }
+
+            });
+
+        }
+
+
+        function mostrarConfirmacion(pedido) {
+
+            const contenedor =
+                document.getElementById('contenido-carrito');
+
+            contenedor.innerHTML = `
+
+                <div class="pedido-confirmado">
+
+                    <h3>
+                        ¡Pedido #${pedido.id} registrado! 🎀
+                    </h3>
+
+                    <p>
+                        Gracias por tu compra.
+                        Total: <strong>${formatearPrecio(pedido.total)}</strong>
+                    </p>
+
+                    <p>
+                        Daniela te contactará para coordinar
+                        el pago y la entrega de tus productos.
+                    </p>
+
+                    <a href="/catalogo" class="btn-continuar">
+                        Seguir explorando el catálogo
+                    </a>
+
+                </div>
+
+            `;
+
+        }
+
+
+        function configurarEventosGlobales() {
+
+            document.addEventListener('click', evento => {
+
+                const decrementar =
+                    evento.target.closest('[data-decrementar]');
+
+                const incrementar =
+                    evento.target.closest('[data-incrementar]');
+
+                const actualizar =
+                    evento.target.closest('[data-actualizar]');
+
+                const eliminar =
+                    evento.target.closest('[data-eliminar]');
+
+
+                if (decrementar) {
+
+                    cambiarCantidad(
+                        Number(decrementar.dataset.decrementar),
+                        -1
+                    );
+                }
+
+                if (incrementar) {
+
+                    cambiarCantidad(
+                        Number(incrementar.dataset.incrementar),
+                        1
+                    );
+                }
+
+                if (actualizar) {
+
+                    aplicarCantidad(
+                        Number(actualizar.dataset.actualizar)
+                    );
+                }
+
+                if (eliminar) {
+
+                    evento.preventDefault();
+
+                    eliminarProducto(
+                        Number(eliminar.dataset.eliminar)
+                    );
+                }
+
+            });
+
+
+            document.addEventListener('change', evento => {
+
+                const input =
+                    evento.target.closest('[data-input-cantidad]');
+
+                if (input) {
+
+                    aplicarCantidad(
+                        Number(input.dataset.inputCantidad)
+                    );
+                }
+
+            });
+
+
+            document.addEventListener('keypress', evento => {
+
+                if (evento.key !== 'Enter') return;
+
+                const input =
+                    evento.target.closest('[data-input-cantidad]');
+
+                if (input) {
+
+                    evento.preventDefault();
+
+                    aplicarCantidad(
+                        Number(input.dataset.inputCantidad)
+                    );
+                }
+
+            });
+
+        }
+
+
+        function cambiarCantidad(id, delta) {
+
+            const items = obtenerCarrito();
+
+            const item = items.find(i => i.id === id);
+
+            if (!item) return;
+
+
+            const nuevaCantidad =
+                item.cantidad + delta;
+
+            if (nuevaCantidad < 1) return;
+
+
+            actualizarCantidad(id, nuevaCantidad);
+
+            renderCarrito();
+
+        }
+
+
+        function aplicarCantidad(id) {
+
+            const input =
+                document.getElementById('cantidad-' + id);
+
+            if (!input) return;
+
+            const cantidad =
+                parseInt(input.value, 10);
+
+
+            if (isNaN(cantidad) || cantidad <= 0) {
+
+                alert('La cantidad debe ser un número mayor a 0');
+
+                input.value = 1;
+
+                return;
+            }
+
+
+            actualizarCantidad(id, cantidad);
+
+            renderCarrito();
+
+        }
+
+
+        function eliminarProducto(id) {
+
+            if (
+                confirm('¿Eliminar este producto del carrito?')
+            ) {
+
+                eliminarDelCarrito(id);
+
+                renderCarrito();
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>

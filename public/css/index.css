@@ -1,0 +1,42 @@
+/* BIENVENIDA */
+.hero {
+  text-align: center;
+  background: var(--color-tarjeta);
+  border-radius: 28px;
+  box-shadow: var(--sombra);
+  padding: 3rem 2rem 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.hero-logo {
+  width: 96px; height: 96px; margin: 0 auto 1.3rem;
+  background: #efb1c8; border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--fuente-titulo); font-size: 0.85rem; line-height: 1.25; color: #8f5070;
+}
+
+.hero h1 {
+  font-family: var(--fuente-titulo); font-weight: 400;
+  font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.25;
+  color: #c982b0; margin-bottom: 0.6rem;
+}
+
+.hero p { max-width: 620px; margin: 0 auto 1.6rem; font-size: 1.2rem; }
+
+/* DESTACADOS */
+.grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.4rem; }
+
+.tarjeta {
+  background: var(--color-tarjeta); border-radius: var(--radio);
+  box-shadow: var(--sombra); overflow: hidden; transition: transform 0.2s;
+}
+.tarjeta:hover { transform: translateY(-5px); }
+.tarjeta img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; background: #e9b6c4; }
+.tarjeta .contenido { padding: 1rem; display: flex; flex-direction: column; gap: 0.4rem; }
+.tarjeta h3 { font-size: 1.15rem; color: var(--color-texto); }
+.tarjeta .precio { color: var(--color-precio); font-weight: 700; font-size: 1.2rem; }
+.tarjeta .acciones { margin-top: auto; padding-top: 0.6rem; }
+
+@media (max-width: 700px) {
+  .hero { padding: 2rem 1.2rem; }
+}

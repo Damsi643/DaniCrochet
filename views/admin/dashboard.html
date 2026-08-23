@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel - Dani Crochet Admin</title>
+    <link rel="icon" href="/img/icon-192.png">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+    <nav class="admin-nav">
+        <div class="container">
+            <a class="logo" href="/admin">Dani Crochet <span>· Admin</span></a>
+            <ul class="nav-links nav-admin">
+                <li><a href="/admin" class="activo">Inicio</a></li>
+                <li><a href="/admin/productos">Productos</a></li>
+                <li><a href="/admin/pedidos">Pedidos</a></li>
+                <li><a href="/admin/clientes">Clientes</a></li>
+                <li><a href="/admin/inventario">Inventario</a></li>
+                <li><a href="/admin/pagos">Pagos</a></li>
+                <li><button type="button" class="btn-salir" id="btn-salir">Cerrar sesión</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="admin-main">
+
+        <h1 class="titulo">¡Hola, Daniela! 💗</h1>
+
+        <section class="tarjetas-resumen" id="tarjetas-resumen">
+            <div class="panel mensaje-vacio-mini">Cargando resumen...</div>
+        </section>
+
+        <section class="panel">
+
+            <div class="cabecera-seccion">
+                <h2 class="seccion">Pedidos recientes</h2>
+                <a class="btn secundario btn-mini" href="/admin/pedidos">Ver todos</a>
+            </div>
+
+            <div class="tabla-contenedora">
+                <table class="tabla-admin">
+                    <thead>
+                        <tr>
+                            <th>Pedido</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Pago</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-recientes">
+                        <tr><td colspan="6" class="mensaje-vacio-mini">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer>Dani Crochet &copy; 2026 - Panel administrativo</footer>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const resumen = await fetchJSON('/api/admin/resumen');
+
+                const tarjetas = [
+                    { icono: '🧶', valor: resumen.totalProductos, etiqueta: 'Total de productos' },
+                    { icono: '📦', valor: resumen.pedidosPendientes, etiqueta: 'Pedidos pendientes' },
+                    { icono: '💗', valor: resumen.totalClientes, etiqueta: 'Clientes registrados' },
+                    { icono: '⚠️', valor: resumen.productosBajoStock, etiqueta: 'Productos con bajo stock' },
+                ];
+
+                document.getElementById('tarjetas-resumen').innerHTML = tarjetas
+                    .map(
+                        (t) => `
+                        <article class="tarjeta-resumen">
+                            <div class="icono">${t.icono}</div>
+                            <span class="valor">${t.valor}</span>
+                            <span class="etiqueta">${t.etiqueta}</span>
+                        </article>`
+                    )
+                    .join('');
+
+                const cuerpo = document.getElementById('tabla-recientes');
+
+                if (resumen.pedidosRecientes.length === 0) {
+                    cuerpo.innerHTML =
+                        '<tr><td colspan="6" class="mensaje-vacio-mini">Aún no hay pedidos.</td></tr>';
+                    return;
+                }
+
+                cuerpo.innerHTML = resumen.pedidosRecientes
+                    .map(
+                        (p) => `
+                        <tr>
+                            <td>#${p.id}</td>
+                            <td>${p.cliente ? p.cliente.nombre : '-'}</td>
+                            <td>${formatearFecha(p.createdAt)}</td>
+                            <td>${formatearPrecio(p.total)}</td>
+                            <td>${badgeEstado(p.estado)}</td>
+                            <td>${p.pago ? badgeEstado(p.pago.estado) : '-'}</td>
+                        </tr>`
+                    )
+                    .join('');
+            } catch (err) {
+                console.error(err);
+            }
+        });
+    </script>
+
+</body>
+</html>
